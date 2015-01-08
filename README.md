@@ -1,6 +1,8 @@
 # Secure Timestamped Property List #
 
-Author: Michael Bironneau <michael.bironneau@openenergi.com>
+Author: Michael Bironneau (<michael.bironneau@openenergi.com>)
+License: MIT
+
 
 *Latest version 0.13*
 
