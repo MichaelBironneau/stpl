@@ -28,7 +28,7 @@ Typical usage:
 	timestamp = token.timestamp
 
 
-**Warning** Access to Token._key is not synchronized so in multi-threaded use it is possible for calls to decrypt() to fail if Token._key is changed between the time it is called and the time it returns. In practice this should not pose a problem but it is worth bearing in mind for testing purposes.
+**Warning** Access to the secret key is not synchronized so in multi-threaded use it is possible for calls to decrypt() to fail if set_secret_key() is called from another thread between the time it is called and the time it returns. In practice this should not pose a problem but it is worth bearing in mind for testing purposes.
 
 **Note:** The encrypted token is always at least 48 characters long (2 blocks + IV)
 
