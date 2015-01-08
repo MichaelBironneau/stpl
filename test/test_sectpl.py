@@ -1,5 +1,5 @@
 import unittest
-from oetoken import Token, InvalidTokenException
+from sectpl.token import Token, InvalidTokenException
 import time
 
 
