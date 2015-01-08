@@ -26,7 +26,11 @@ Optionally, you may run the test suite:
     python setup.py test
 
 ##Implementation##
-A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext using PKCS#7 method before encrypting with AES-256 (CBC mode). The IV + ciphertext are then signed using Python's native HMAC-MD5 implementation and this signature is appended to the message.
+The user supplies a private key and two optional salts which we use to derive encryption and signing keys using PBKDF2. If no salt is provided two are generated using `urandom`. 
+
+Next, the user supplies a list of property strings, `['a', 'b', 'c',...]` which is converted to a |-delimited string and to which `str(time.time())` is prepended.  This plaintext is padded using PKCS#7 method. An Initialization Vector (IV) is generated using `urandom` and the plaintext is then encrypted with AES-256 (CBC mode) using the key described above and the IV. 
+
+The IV + ciphertext are then signed using Python's native HMAC-MD5 implementation with the signing key derived as described above, and this signature is appended to the message.
 
 ##Typical usage:##
 
