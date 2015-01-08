@@ -12,7 +12,7 @@ A timestamped, encrypted property list intended for use as an authentication tok
 
 Typical usage:
 
-        from sectpl.token import Token
+    from sectpl.token import Token
 	Token.set_secret_key('my_secret_key')
 	#encrypt
 	t = Token()
