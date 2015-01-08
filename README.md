@@ -34,6 +34,8 @@ Next, the user supplies a list of property strings, `['a', 'b', 'c',...]` which 
 
 The IV + ciphertext are then signed using Python's native HMAC-MD5 implementation with the signing key derived as described above, and this signature is appended to the message.
 
+The decryption and verification process follow roughly the opposite process as above, with extra care taken in the verification step to use `compare_hash` method to prevent vulnerability due to timing attack.
+
 ##Typical usage:##
 
     from sectpl.token import Token
