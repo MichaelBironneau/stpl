@@ -4,7 +4,7 @@ Author: Michael Bironneau (<michael.bironneau@openenergi.com>)
 
 License: MIT
 
-*Latest version 0.13*
+*Latest version 0.15*
 
 Alternative implementation of authentication tokens for use with Tornado web server. For long-living authentication schemes where we want the tokens to survive server restarts, the current implementation is inadequate. Here we create a reusable timestamped encrypted property list that can be used for such purposes, for example storing the UserId and Ip Address in a timestamped, encrypted cookie. Our design loosely follows that of Microsoft's .ASPXAUTH cookie.
 
@@ -26,7 +26,7 @@ Optionally, you may run the test suite:
     python setup.py test
 
 ##Description##
-A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext with random data before encrypting with AES-256 (CBC mode). The IV + ciphertext are then signed using Python's native HMAC-MD5 implementation.
+A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext using PKCS#7 method before encrypting with AES-256 (CBC mode). The IV + ciphertext are then signed using Python's native HMAC-MD5 implementation.
 
 Typical usage:
 
