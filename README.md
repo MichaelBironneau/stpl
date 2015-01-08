@@ -19,7 +19,7 @@ Optionally, you may run the test suite:
     python setup.py test
 
 ##Description##
-A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext with random data before encrypting with AES-256 (CBC mode). The first block of the plaintext contains the timestamp and some (or all) of the user-defined properties, so that if the IV is tampered with an error will be raised on decryption (the IV only affects the first block in CBC-mode). The IV + ciphertext are then signed using Python's HMAC-MD5 implementation.
+A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext with random data before encrypting with AES-256 (CBC mode). The IV + ciphertext are then signed using Python's native HMAC-MD5 implementation.
 
 Typical usage:
 
