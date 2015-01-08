@@ -26,5 +26,7 @@ Typical usage:
 **Warning** Access to Token._key is not synchronized so in multi-threaded use it is possible for calls to decrypt() to fail if Token._key is changed between the time it is called and the time it returns. In practice this should not pose a problem but it is worth bearing in mind for testing purposes.
 
 **Note:** The encrypted token is always at least 48 characters long (2 blocks + IV)
+
 **Note:** Throughout is around 80k decryptions per second and 60k encryptions per second on Windows 7, Intel Core i-5 @ 3.2Ghz.
-**Note:** Does not deal with key rotation. 
+
+**Note:** Does not deal with key rotation.
