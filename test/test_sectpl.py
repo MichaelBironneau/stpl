@@ -12,14 +12,14 @@ class Test(unittest.TestCase):
 		self.assertEqual(len(Token._sig), 32)
 
 	def test_pad_short(self):
-		"""Make sure that short payload is 2 blocks long"""
+		"""Make sure that short payload is 1 block long"""
 		payload = 'AAAAA'
-		self.assertEqual(len(Token._pad(payload)), 32)
+		self.assertEqual(len(Token._pad(payload)), 16)
 
 	def test_pad_exact(self):
-		"""Make sure that a payload exactly 32 bytes long is still padded with 1 block of random data"""
+		"""Make sure that a payload exactly 32 bytes long is not padded"""
 		payload = 'A'*32
-		self.assertEqual(len(Token._pad(payload)), 48)
+		self.assertEqual(Token._pad(payload), payload)
 
 	def test_encrypt_decrypt_user_prop(self):
 		"""Make sure that we are able to recover all properties after decryption"""

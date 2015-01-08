@@ -4,7 +4,7 @@ Secure Timestamped Property List
 
 @author: Michael Bironneau <michael.bironneau@openenergi.com>
 
-A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext with random data before encrypting with AES-256 (CBC mode). The IV + ciphertext is then signed using Python's HMAC-MD5 implementation (with a different derived key).
+A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext before encrypting with AES-256 (CBC mode). The IV + ciphertext is then signed using Python's HMAC-MD5 implementation (with a different derived key).
 
 Typical usage::
 
@@ -82,6 +82,7 @@ class Token(object):
 		except TypeError:
 			raise RuntimeError("The encryption key must be set via Token.set_secret_key()")
 		plaintext = cipher.decrypt(payload).decode('unicode_escape')
+		plaintext = Token._unpad(plaintext) #remove padding
 		if '|' not in plaintext:
 			#This is the only character that we can guarantee is in the output - therefore raise if it is not present
 			raise InvalidTokenException("Token was encrypted with incorrect key or got corrupted in transport.")
@@ -90,7 +91,7 @@ class Token(object):
 			parts[0] = int(parts[0])
 		except ValueError:
 			raise InvalidTokenException("Token had a corrupt timestamp and is deemed to be invalid")
-		return parts[:-1] #Exclude random padding
+		return parts
 
 	def _sign(ciphertext):
 		"""
@@ -107,15 +108,20 @@ class Token(object):
 
 	def _pad(payload):
 		"""
-		Pad payload with random data so that it is a multiple of AES block size
-		Always make sure that we add at least one block.
+		Pad payload with so that it is a multiple of AES block size.
 		"""
-		num_of_blocks = int(len(payload)/AES.block_size) + 1
-		if num_of_blocks == 1:
-			num_of_blocks = 2
-		rand_data = urandom(num_of_blocks*AES.block_size - len(payload)) #This is more data than we need but who cares
-		rand_data = binascii.hexlify(rand_data).decode('utf-8')[:num_of_blocks*AES.block_size - len(payload) - 1] #-1 to include separator
-		return payload + '|' + rand_data
+		length = AES.block_size - (len(payload) % AES.block_size)
+		if length == AES.block_size:
+			return payload #no padding required
+		padding = chr(length)*length
+		return payload + padding
+
+	def _unpad(payload):
+		"""
+		Remove padding from payload
+		"""
+		pos = -1*ord(payload[-1])
+		return payload[:pos]
 
 	def set(self, properties):
 		"""Set token properties. Prepends current time as integer. Properties should be a list of strings."""
