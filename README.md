@@ -7,6 +7,10 @@ Alternative implementation of authentication tokens for use with Tornado web ser
 
     python setup.py install
 
+Optionally, you may run the test suite:
+
+    python setup.py test
+
 ##Description##
 A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext with random data before encrypting with AES-256 (CBC mode). The first block of the plaintext contains the timestamp and some (or all) of the user-defined properties, so that if the IV is tampered with an error will be raised on decryption (the IV only affects the first block in CBC-mode). Tampering with the padding (end 16 or so bytes) will not raise an InvalidTokenException and the token can still be decypted by someone who knows the derived key, but this neither affects the integrity of the payload nor its confidentiality - at best it allows an adversary to determine how long the payload is and how many padding bytes there are. In the future  could consider signing the padding to prevent this information from being revealed if it deemed significant enough.
 
