@@ -1,4 +1,4 @@
-# README #
+# Secure Timestamped Property List #
 
 Alternative implementation of authentication tokens for use with Tornado web server. For long-living authentication schemes where we want the tokens to survive server restarts, the current implementation is inadequate. Here we create a reusable timestamped encrypted property list that can be used for such purposes, for example storing the UserId and Ip Address in a timestamped, encrypted cookie. Our design loosely follows that of Microsoft's .ASPXAUTH cookie.
 
@@ -9,6 +9,7 @@ Our implementation guarantees:
 * Compromise of either the HMAC key or encryption key does not compromise the other (so an attacker needs to compromise both)
 * No vulnerability to timing attacks (via Python native implementation of HMAC comparison)
 * Suitable for long-lived authentication tokens that need to survive server restarts. In particular, the encryption/signature keys can be derived with predefined salts.
+* All tokens are timestamped, so in particular it is possible to reject old tokens independently of client-side properties such as cookie expiration. 
 
 ##Installing##
 
