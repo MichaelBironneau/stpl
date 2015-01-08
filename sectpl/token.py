@@ -4,7 +4,7 @@ Secure Timestamped Property List
 
 @author: Michael Bironneau <michael.bironneau@openenergi.com>
 
-A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext with random data before encrypting with AES-256 (CBC mode). The first block of the plaintext contains the timestamp and some (or all) of the user-defined properties, so that if the IV is tampered with an error will be raised on decryption (the IV only affects the first block in CBC-mode). Tampering with the padding (end 16 or so bytes) will not raise an InvalidTokenException and the token can still be decypted by someone who knows the derived key, but this neither affects the integrity of the payload nor its confidentiality - at best it allows an adversary to determine how long the payload is and how many padding bytes there are. In the future  could consider signing the padding to prevent this information from being revealed if it deemed significant enough.
+A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext with random data before encrypting with AES-256 (CBC mode). The IV + ciphertext is then signed using Python's HMAC-MD5 implementation (with a different derived key).
 
 Typical usage::
 
@@ -22,10 +22,12 @@ Typical usage::
 ..warn:: Access to Token._key is not synchronized so in multi-threaded use it is possible for calls to decrypt() to fail if Token._key is changed between the time it is called and the time it returns. In practice this should not pose a problem but it is worth bearing in mind for testing purposes.
 
 ..note:: The encrypted token is always at least 48 characters long (2 blocks + IV)
-..note:: Throughout is around 80k decryptions per second and 60k encryptions per second on Windows 7, Intel Core i-5 @ 3.2Ghz.
+..note:: Throughout is around 50k decryptions per second and 25k encryptions per second on Windows 7, Intel Core i-5 @ 3.2Ghz.
 ..note:: Does not deal with key rotation. 
 """
 from Crypto.Cipher import AES
+from hashlib import md5
+from hmac import HMAC, compare_digest
 from pbkdf2 import PBKDF2
 from os import urandom
 import time
@@ -37,15 +39,26 @@ class InvalidTokenException(Exception):
 class Token(object):
 	"""Represents a timestamped Token (list of properties that can contain information like user id, IP address, etc.)."""
 
-	def set_secret_key(new_key, salt=None):
+	def set_secret_keys(new_key, salt=None):
 		"""Set secret encryption key at module level.
 
-		Uses urandom to derive the salt, unless the user provides one explicitly.
+		Uses urandom to derive the salt, unless the user provides two explicitly.
+		Token._key is the derived encryption key
+		Token._sig is the derived signature key, produced with a different salt
+
 		"""
 		if salt:
-			Token._key = PBKDF2(new_key, salt).read(32) #256-bit key
+			if type(salt) == list:
+				if len(salt) == 2:
+					Token._key = PBKDF2(new_key, salt[0]).read(32) #256-bit key
+					Token._sig = PBKDF2(new_key, salt[1]).read(32) #256-bit key
+				else:
+					raise RuntimeError("Salt must be a list with two elements")
+			else:
+				raise RuntimeError("Salt must be a list or None")
 		else:
 			Token._key = PBKDF2(new_key, urandom(8)).read(32) #256-bit key
+			Token._sig = PBKDF2(new_key, urandom(8)).read(32) #256-bit key
 
 
 	def decrypt(ciphertext):
@@ -56,10 +69,11 @@ class Token(object):
 		Raise RuntimeError if Token key has not been specified at run time.
 		"""
 		bytestr = binascii.unhexlify(ciphertext)
-		if len(bytestr) < 2*AES.block_size:
-			raise InvalidTokenException('Token is expected to be at least 32 characters long')
+		#Verify message signature
+		if not Token._verify(bytestr):
+			raise InvalidTokenException('Could not verify HMAC for message.')
 		iv = bytestr[:AES.block_size]
-		payload = bytestr[AES.block_size:]
+		payload = bytestr[AES.block_size:-16] #Last 16 bytes are reserved for HMAC, first block_size bytes reserved for IV.
 		cipher = None
 		try:
 			cipher = AES.new(Token._key, AES.MODE_CBC, iv)
@@ -77,6 +91,19 @@ class Token(object):
 		except ValueError:
 			raise InvalidTokenException("Token had a corrupt timestamp and is deemed to be invalid")
 		return parts[:-1] #Exclude random padding
+
+	def _sign(ciphertext):
+		"""
+		Uses built-in Python implementation of HMAC-MD5 to sign ciphertext.
+		"""
+		return HMAC(Token._sig, ciphertext, md5).digest()
+
+	def _verify(ciphertext):
+		"""
+		Verify ciphertext. Use compare_digest instead of a==b to prevent timing attacks.
+		"""
+		a = Token._sign(ciphertext[:-16])
+		return compare_digest(a, ciphertext[-16:])
 
 	def _pad(payload):
 		"""
@@ -106,6 +133,7 @@ class Token(object):
 		except TypeError:
 			raise RuntimeError("The encryption key must be set via Token.set_secret_key()")
 		ciphertext = (iv + cipher.encrypt(payload))
+		ciphertext += Token._sign(ciphertext)
 		return binascii.hexlify(ciphertext).decode('utf-8')
 
 	def __init__(self, ciphertext=None):
