@@ -147,6 +147,6 @@ class Token(object):
 		self.timestamp = 0
 		self.properties = []
 		if ciphertext:
-			self.properties = Token._decrypt_cookie(ciphertext)
+			self.properties = Token.decrypt(ciphertext)
 			self.timestamp = self.properties[0]
 			self.properties = self.properties[1:]

@@ -29,6 +29,16 @@ class Test(unittest.TestCase):
 		c = t.encrypt()
 		self.assertEqual(Token.decrypt(c)[1:], p) #c[0] contains timestamp
 
+	def test_encrypt_decrypt_user_prop_constructor(self):
+		"""Make sure that we are able to recover all properties after decryption
+		Use constructor.
+		"""
+		t = Token()
+		p = ['a property', 'a second property']
+		t.set(p)
+		c = t.encrypt()
+		self.assertEqual(Token(c).properties, p) #c[0] contains timestamp
+
 	def test_timestamp(self):
 		"""Make sure that timestamp is reasonable (this test could fail if machine hangs unreasonably so try re-running it if it does)"""
 		t = Token()
