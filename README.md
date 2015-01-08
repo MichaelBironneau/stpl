@@ -4,6 +4,7 @@
 Alternative implementation of authentication tokens for use with Tornado web server. For long-living authentication schemes where we want the tokens to survive server restarts, the current implementation is inadequate. Here we create a reusable timestamped encrypted property list that can be used for such purposes, for example storing the UserId and Ip Address in a timestamped, encrypted cookie. Our design loosely follows that of Microsoft's .ASPXAUTH cookie.
 
 Our implementation guarantees:
+
 * Secrecy of property list (an attacker cannot see any of the stored properties without knowledge of the secret key)
 * Message integrity (via HMAC-MD5)
 * Compromise of either the HMAC key or encryption key does not compromise the other (so an attacker needs to compromise both)
