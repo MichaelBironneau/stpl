@@ -26,7 +26,7 @@ Optionally, you may run the test suite:
     python setup.py test
 
 ##Implementation##
-A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext using PKCS#7 method before encrypting with AES-256 (CBC mode). The IV + ciphertext are then signed using Python's native HMAC-MD5 implementation.
+A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext using PKCS#7 method before encrypting with AES-256 (CBC mode). The IV + ciphertext are then signed using Python's native HMAC-MD5 implementation and this signature is appended to the message.
 
 ##Typical usage:##
 
