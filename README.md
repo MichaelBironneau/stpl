@@ -42,6 +42,12 @@ Typical usage:
 	timestamp = token.timestamp
 
 
+For long-lived tokens, we can specify a salt explicitly and use the salt to manage a key rotation schedule:
+
+    Token.set_secret_keys('my_secret_key', ['encryption_salt', 'hmac_salt'])
+
+Instead of `token = Token(ciphertext)` we can also use `token = Token.decrypt(ciphertext)` - the two are equivalent.
+
 **Warning** Access to the secret key is not synchronized so in multi-threaded use it is possible for calls to decrypt() to fail if set_secret_key() is called from another thread between the time it is called and the time it returns. In practice this should not pose a problem but it is worth bearing in mind for testing purposes.
 
 **Note:** The encrypted token is always at least 96 characters long 2x(IV + 1 block + HMAC)
