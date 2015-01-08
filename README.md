@@ -42,7 +42,7 @@ Typical usage:
 	timestamp = token.timestamp
 
 
-For long-lived tokens, we can specify a salt explicitly and use the salt to manage a key rotation schedule:
+For long-lived tokens, we can specify a salt explicitly and use the salt to manage a (possibly distributed) key rotation schedule:
 
     Token.set_secret_keys('my_secret_key', ['encryption_salt', 'hmac_salt'])
 
