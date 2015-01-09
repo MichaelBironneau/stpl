@@ -6,9 +6,9 @@ License: MIT
 
 *Latest version 0.17*
 
-The idea is to have an alternative implementation of authentication tokens for use with Tornado web server that survive server restarts and that are always timestamped. Our use case is for a web dashboard application where the client is expected to remain authenticated for long periods and we need to be able to control when the tokens expire independently of server restarts and client-side cookie expiry dates. Here we create a reusable timestamped encrypted property list that can be used for such purposes, for example keeping track of the authenticated User Id and Ip Address. Our design is nothing new, in fact it is mostly based off Microsoft's .ASPXAUTH cookie, but we could not find any existing Python libraries with the following guarantees.
+This repository hosts a signed, timestamped, encrypted property list that can be used for things like keeping track of the authenticated User Id and Ip Address in a web application. 
 
-Our implementation guarantees:
+The implementation guarantees:
 
 * Secrecy of property list (an attacker cannot see any of the stored properties without knowledge of the secret key)
 * Message integrity (via HMAC-MD5)
