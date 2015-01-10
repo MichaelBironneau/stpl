@@ -19,6 +19,8 @@ The implementation guarantees:
 
 ##Installing##
 
+I tested the code using Python 3.4. It may or may not work for other versions.
+
     python setup.py install
 
 Optionally, you may run the test suite:
