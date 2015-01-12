@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='STPL',
-      version='0.19',
+      version='0.20',
       description='Secure Timestamped Property List',
       author='Michael Bironneau',
       author_email='michael.bironneau@openenergi.com',

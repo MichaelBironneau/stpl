@@ -39,13 +39,14 @@ class InvalidTokenException(Exception):
 class Token(object):
 	"""Represents a timestamped Token (list of properties that can contain information like user id, IP address, etc.)."""
 
-	def set_secret_keys(new_key, salt=None):
+	def set_secret_keys(new_key, salt=None, iterations=10000):
 		"""Set secret encryption key at module level.
 
 		Uses urandom to derive the salt, unless the user provides two explicitly.
 		Token._key is the derived encryption key
 		Token._sig is the derived signature key, produced with a different salt
 
+		`iterations` is the number of rounds to use for PBKDF2 - the more the better. Benchmark for your use case and set this setting as high as possible.
 		"""
 		if salt:
 			if type(salt) == list:
