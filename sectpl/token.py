@@ -4,7 +4,7 @@ Secure Timestamped Property List
 
 @author: Michael Bironneau <michael.bironneau@openenergi.com>
 
-A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext before encrypting with AES-256 (CBC mode). The IV + ciphertext is then signed using Python's HMAC-MD5 implementation (with a different derived key).
+A timestamped, encrypted property list intended for use as an authentication token that is stored client-side in an HTTP cookie. Uses PBKDF2 to derive key and pads plaintext before encrypting with AES-256 (CBC mode). The IV + ciphertext is then signed using Python's HMAC-SHA2 implementation (with a different derived key).
 
 Typical usage::
 
@@ -26,7 +26,7 @@ Typical usage::
 ..note:: Does not deal with key rotation. 
 """
 from Crypto.Cipher import AES
-from hashlib import md5
+from hashlib import sha256
 from hmac import HMAC, compare_digest
 from pbkdf2 import PBKDF2
 from os import urandom
@@ -73,7 +73,7 @@ class Token(object):
 		if not Token._verify(bytestr):
 			raise InvalidTokenException('Could not verify HMAC for message.')
 		iv = bytestr[:AES.block_size]
-		payload = bytestr[AES.block_size:-16] #Last 16 bytes are reserved for HMAC, first block_size bytes reserved for IV.
+		payload = bytestr[AES.block_size:-32] #Last 16 bytes are reserved for HMAC, first block_size bytes reserved for IV.
 		cipher = None
 		try:
 			cipher = AES.new(Token._key, AES.MODE_CBC, iv)
@@ -95,16 +95,16 @@ class Token(object):
 
 	def _sign(ciphertext):
 		"""
-		Uses built-in Python implementation of HMAC-MD5 to sign ciphertext.
+		Uses built-in Python implementation of HMAC-SHA2 to sign ciphertext.
 		"""
-		return HMAC(Token._sig, ciphertext, md5).digest()
+		return HMAC(Token._sig, ciphertext, sha256).digest()
 
 	def _verify(ciphertext):
 		"""
 		Verify ciphertext. Use compare_digest instead of a==b to prevent timing attacks.
 		"""
-		a = Token._sign(ciphertext[:-16])
-		return compare_digest(a, ciphertext[-16:])
+		a = Token._sign(ciphertext[:-32])
+		return compare_digest(a, ciphertext[-32:])
 
 	def _pad(payload):
 		"""
