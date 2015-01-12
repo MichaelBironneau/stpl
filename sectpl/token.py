@@ -51,8 +51,8 @@ class Token(object):
 		if salt:
 			if type(salt) == list:
 				if len(salt) == 2:
-					Token._key = PBKDF2(new_key, salt[0]).read(32) #256-bit key
-					Token._sig = PBKDF2(new_key, salt[1]).read(32) #256-bit key
+					Token._key = PBKDF2(new_key, salt[0], iterations=iterations).read(32) #256-bit key
+					Token._sig = PBKDF2(new_key, salt[1], iterations=iterations).read(32) #256-bit key
 				else:
 					raise RuntimeError("Salt must be a list with two elements")
 			else:
