@@ -4,16 +4,17 @@ Author: Michael Bironneau (<michael.bironneau@openenergi.com>)
 
 License: MIT
 
-*Latest version 0.17*
+*Latest version 0.21*
 
 This repository hosts a signed, timestamped, encrypted property list that can be used for things like keeping track of the authenticated User Id and Ip Address in a web application. 
 
 The implementation guarantees:
 
 * Secrecy of property list (an attacker cannot see any of the stored properties without knowledge of the secret key)
-* Message integrity (via HMAC-MD5)
+* Message integrity (via HMAC-SHA256)
 * Compromise of either the HMAC key or encryption key does not compromise the other
 * No vulnerability to timing attacks
+* Configurable number of  PBKDF2 rounds for maximum resistance to brute force attacks
 * Suitable for long-lived authentication tokens that need to survive server restarts. In particular, the encryption/signature keys can be derived with predefined salts.
 * All tokens are timestamped, so in particular it is possible to reject old tokens independently of client-side properties such as cookie expiration. 
 
@@ -34,7 +35,7 @@ The user supplies a private key and two optional salts which we use to derive en
 Next, the user supplies a list of property strings, `['a', 'b', 'c',...]` which is converted to a |-delimited string and to which `str(time.time())` is prepended.  This plaintext is padded using PKCS#7 method. An Initialization Vector (IV) is generated using `urandom` and the plaintext is then encrypted with AES-256 (CBC mode) using the key described above and the IV. 
 
 
-The IV + ciphertext are then signed using Python's native HMAC-MD5 implementation with the signing key derived as described above, and this signature is appended to the message.
+The IV + ciphertext are then signed using Python's native HMAC-SHA256 implementation with the signing key derived as described above, and this signature is appended to the message.
 
 The decryption and verification process follow roughly the opposite process as above, with extra care taken in the verification step to use `compare_hash` method to prevent vulnerability due to timing attack.
 
