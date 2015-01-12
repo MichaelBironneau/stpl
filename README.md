@@ -42,7 +42,7 @@ The decryption and verification process follow roughly the opposite process as a
 ##Typical usage:##
 
     from sectpl.token import Token
-	Token.set_secret_keys('my_secret_key')
+	Token.set_secret_keys('my_secret_key', iterations=1000)
 	#encrypt
 	t = Token()
 	t.set(['user name', '111.24.32.23'])
