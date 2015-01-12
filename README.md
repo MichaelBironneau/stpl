@@ -42,7 +42,7 @@ The decryption and verification process follow roughly the opposite process as a
 ##Typical usage:##
 
     from sectpl.token import Token
-	Token.set_secret_keys('my_secret_key', iterations=1000)
+	Token.set_secret_keys('my_secret_key')
 	#encrypt
 	t = Token()
 	t.set(['user name', '111.24.32.23'])
@@ -55,7 +55,7 @@ The decryption and verification process follow roughly the opposite process as a
 
 For long-lived tokens, we can specify a salt explicitly and use the salt to manage a (possibly distributed) key rotation schedule:
 
-    Token.set_secret_keys('my_secret_key', ['encryption_salt', 'hmac_salt'])
+    Token.set_secret_keys('my_secret_key', ['encryption_salt', 'hmac_salt'], iterations=100000)
 
 Instead of `token = Token(ciphertext)` we can also use `token = Token.decrypt(ciphertext)` - the two are equivalent.
 
