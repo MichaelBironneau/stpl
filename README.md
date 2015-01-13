@@ -17,6 +17,7 @@ The implementation guarantees:
 * Configurable number of  PBKDF2 rounds for maximum resistance to brute force attacks
 * Suitable for long-lived authentication tokens that need to survive server restarts. In particular, the encryption/signature keys can be derived with predefined salts.
 * All tokens are timestamped, so in particular it is possible to reject old tokens independently of client-side properties such as cookie expiration. 
+* Not vulnerable to oracle padding attacks
 
 ##Installing##
 
